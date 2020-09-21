@@ -1,21 +1,23 @@
 const path = require('path');
-// const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const CleanWebpackPlugin = require("clean-webpack-plugin");
 // const CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = {
-  mode: "production",
+  mode: "development",
   entry: {
-    app:'./src/app.js'
+    app: "./src/main.js"
   },
   output: {
-    path:path.resolve(__dirname, "dist"),
-    filename: '[name].js'
+    path: path.resolve(__dirname, "dist"),
+    filename: "[name].[chunkhash:5].js"
   },
-  devServer:{
-    contentBase:path.join(__dirname,'dist'),
-    compress:true,
-    port:9000,
-    host:'localhost',
-    open:true
+  devServer: {
+    contentBase: path.join(__dirname, "dist"),
+    compress: true,
+    port: 9000,
+    host: "localhost",
+    open: true
   },
   // plugins:[
   //   // new CleanWebpackPlugin(['dist']), //传入数组,指定要删除的目录
@@ -31,35 +33,41 @@ module.exports = {
   //   })
   // ],
   module: {
-    rules:[
+    rules: [
       {
         test: /\.(js|jsx)$/,
         use: {
-            loader: 'babel-loader',
-            options: {
-                presets: ['es2015', 'react'],
-            }
+          loader: "babel-loader",
+          options: {
+            presets: ["es2015", "react", "stage-0"],
+            plugins: ["transform-decorators-legacy"]
+          }
         },
         exclude: /node_modules/
       },
       {
-        test:'/\.less$/',
-        use:[
-          {loader:'style-loader'},
-          {loader:'css-loader'},
-          {loader:'less-loader'}
+        test: "/.less$/",
+        use: [
+          { loader: "style-loader" },
+          { loader: "css-loader" },
+          { loader: "less-loader" }
         ]
       },
       {
-        test:/\.(png|jpg|gif)$/,
-        use:[
-          {loader:'file-loader'}
-        ]
+        test: /\.(png|jpg|gif)$/,
+        use: [{ loader: "file-loader" }]
       }
     ]
   },
-  optimization:{
-    minimize: true//是否压缩代码
-  }
-
+  optimization: {
+    minimize: false, //是否压缩代码
+    runtimeChunk: "single"
+  },
+  plugins: [
+    // new BundleAnalyzerPlugin({
+    //   analyzerPort: 8989
+    // }),
+    new CleanWebpackPlugin(["dist"]),
+    new HtmlWebpackPlugin({ title: "自动化title" })
+  ]
 };
